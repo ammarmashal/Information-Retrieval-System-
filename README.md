@@ -15,7 +15,7 @@ Please attribute the original work by linking back to this repository.
 ---
 
 ## 📂 File Structure
-```
+```bach
 .
 ├── app.py               # Main Streamlit application
 ├── src/
