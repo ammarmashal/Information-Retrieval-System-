@@ -3,6 +3,7 @@ google-generativeai
 langchain-google-genai
 langchain
 langchain_community
+ollama
 PyPDF2
 faiss-cpu
 streamlit
