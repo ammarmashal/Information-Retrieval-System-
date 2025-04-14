@@ -59,7 +59,7 @@ def user_input(user_question):
             else:
                 # Style the AI's reply
                 st.markdown(
-                    f"<div style='color: white; font-weight: 200;'>Reply: {message.content}</div>",
+                    f"<div style='color: green; font-weight: 200;'>Reply: {message.content}</div>",
                     unsafe_allow_html=True
                 )
             # Add a horizontal line after each question-answer pair
