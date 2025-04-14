@@ -4,7 +4,7 @@ import time
 from datetime import datetime, timedelta
 import os
 # Quota settings
-MAX_QUESTIONS = 5  # Set your desired quota limit
+MAX_QUESTIONS = 10  # Set your desired quota limit
 QUOTA_RESET_MINUTES = 60  # Reset timer in minutes
 
 # Initialize session state for quota tracking
@@ -51,9 +51,20 @@ def user_input(user_question):
         # Display conversation
         for i, message in enumerate(st.session_state.chatHistory):
             if i % 2 == 0:
-                st.write("User: ", message.content)
+                # Style the user's question
+                st.markdown(
+                    f"<div style='color: blue; font-weight: bold;'>User: {message.content}</div>",
+                    unsafe_allow_html=True
+                )
             else:
-                st.write("Reply: ", message.content)
+                # Style the AI's reply
+                st.markdown(
+                    f"<div style='color: white; font-weight: 200;'>Reply: {message.content}</div>",
+                    unsafe_allow_html=True
+                )
+            # Add a horizontal line after each question-answer pair
+            if i % 2 == 1:
+                st.markdown("<hr>", unsafe_allow_html=True)
                 
         # Show quota usage
         st.sidebar.write(f"Questions used: {st.session_state.question_count}/{MAX_QUESTIONS}")
@@ -69,6 +80,7 @@ def main():
     st.set_page_config(page_title="Information Retrieval", page_icon="📑")
     st.title("Information Retrieval System 📑")
     
+    main_container = st.container()
     # Display quota info in sidebar
     with st.sidebar:
         st.title("Menu:")
