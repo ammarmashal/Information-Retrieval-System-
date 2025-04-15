@@ -4,6 +4,7 @@ langchain-google-genai
 langchain
 langchain_community
 ollama
+beautifulsoup4
 PyPDF2
 faiss-cpu
 streamlit

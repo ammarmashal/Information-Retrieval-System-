@@ -7,10 +7,28 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
 from dotenv import load_dotenv
+import requests
+from bs4 import BeautifulSoup
 
 load_dotenv()
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")  
 os.environ['GOOGLE_API_KEY'] = GOOGLE_API_KEY
+
+
+def get_text_from_url(url):
+    response = requests.get(url)
+    if response.status_code != 200:
+        raise ValueError(f"Failed to fetch the URL: {url}")
+    
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    # Remove script and style tags
+    for tag in soup(["script", "style", "header", "footer", "nav", "aside"]):
+        tag.decompose()
+
+    text = soup.get_text(separator=" ", strip=True)
+    return text
+
 
 def get_pdf_text(pdf_docs):    
     text = ""
