@@ -7,8 +7,6 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
 from dotenv import load_dotenv
-import requests
-from bs4 import BeautifulSoup
 
 load_dotenv()
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")  
@@ -28,7 +26,6 @@ def get_text_from_url(url):
 
     text = soup.get_text(separator=" ", strip=True)
     return text
-
 
 def get_pdf_text(pdf_docs):    
     text = ""
