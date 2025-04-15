@@ -48,17 +48,26 @@ def user_input(user_question):
             st.session_state.last_user_question = user_question
             st.session_state.last_ai_answer = response['answer']
 
+            # Display conversation with improved styling
             for i, message in enumerate(st.session_state.chatHistory):
                 if i % 2 == 0:
+                    # User question styling
                     st.markdown(
-                        f"<div style='background-color: #f0f2f6; padding: 10px; border-radius: 5px; margin: 5px 0;'>"
-                        f"<strong>👤 User:</strong> {message.content}</div>",
+                        f"""
+                        <div style='background-color: #e8f4ff; padding: 15px; border-radius: 10px; margin: 10px 0; border: 1px solid #cce7ff;'>
+                            <strong>👤 User:</strong> {message.content}
+                        </div>
+                        """,
                         unsafe_allow_html=True
                     )
                 else:
+                    # Assistant answer styling
                     st.markdown(
-                        f"<div style='background-color: #e6f7ff; padding: 10px; border-radius: 5px; margin: 5px 0;'>"
-                        f"<strong>🤖 Assistant:</strong> {message.content}</div>",
+                        f"""
+                        <div style='background-color: #f6ffed; padding: 15px; border-radius: 10px; margin: 10px 0; border: 1px solid #b7eb8f;'>
+                            <strong>🤖 Assistant:</strong> {message.content}
+                        </div>
+                        """,
                         unsafe_allow_html=True
                     )
 
@@ -67,7 +76,6 @@ def user_input(user_question):
 
     except Exception as e:
         st.error(f"Error processing your question: {str(e)}")
-
 def main():
     st.set_page_config(page_title="PDF Insight Pro", page_icon="📚", layout="centered")
     st.title("📚 PDF Insight Pro")
