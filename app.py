@@ -70,7 +70,7 @@ def user_input(user_question):
 
 def main():
     st.set_page_config(page_title="PDF Insight Pro", page_icon="📚", layout="centered")
-    st.title("📚 PDF Insight Prooooo")
+    st.title("📚 PDF Insight Prooooo  عبدالمجيد ياسر مشعل ")
     st.caption("Extract precise answers from your documents using AI")
 
     with st.sidebar:
