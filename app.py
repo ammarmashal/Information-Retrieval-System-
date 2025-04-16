@@ -1,13 +1,14 @@
-
 import streamlit as st
-from src.helper import get_pdf_text, get_text_chunks, get_vector_store, get_conversational_chain, get_agent_with_tools
+from src.helper import get_pdf_text, get_text_chunks, get_vector_store, get_conversational_chain
 from langchain_google_genai import ChatGoogleGenerativeAI
 from datetime import datetime, timedelta
 import time
 
+# Quota settings
 MAX_QUESTIONS = 10
 QUOTA_RESET_MINUTES = 60
 
+# Session state
 if 'question_count' not in st.session_state:
     st.session_state.question_count = 0
 if 'quota_exceeded_time' not in st.session_state:
@@ -47,18 +48,34 @@ def user_input(user_question):
             st.session_state.last_user_question = user_question
             st.session_state.last_ai_answer = response['answer']
 
+            # Display conversation with improved styling
             for i, message in enumerate(st.session_state.chatHistory):
                 if i % 2 == 0:
-                    st.markdown(f"<div style='background-color: #e8f4ff; padding: 15px; border-radius: 10px; margin: 10px 0; border: 1px solid #cce7ff;'><strong>👤 User:</strong> {message.content}</div>", unsafe_allow_html=True)
+                    # User question styling
+                    st.markdown(
+                        f"""
+                        <div style='background-color: #e8f4ff; padding: 15px; border-radius: 10px; margin: 10px 0; border: 1px solid #cce7ff;'>
+                            <strong>👤 User:</strong> {message.content}
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
                 else:
-                    st.markdown(f"<div style='background-color: #f6ffed; padding: 15px; border-radius: 10px; margin: 10px 0; border: 1px solid #b7eb8f;'><strong>🤖 Assistant:</strong> {message.content}</div>", unsafe_allow_html=True)
+                    # Assistant answer styling
+                    st.markdown(
+                        f"""
+                        <div style='background-color: #f6ffed; padding: 15px; border-radius: 10px; margin: 10px 0; border: 1px solid #b7eb8f;'>
+                            <strong>🤖 Assistant:</strong> {message.content}
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
 
             st.sidebar.progress(st.session_state.question_count / MAX_QUESTIONS)
             st.sidebar.caption(f"Questions used: {st.session_state.question_count}/{MAX_QUESTIONS}")
 
     except Exception as e:
         st.error(f"Error processing your question: {str(e)}")
-
 def main():
     st.set_page_config(page_title="PDF Insight Pro", page_icon="📚", layout="centered")
     st.title("📚 PDF Insight Pro")
@@ -67,17 +84,23 @@ def main():
     with st.sidebar:
         st.header("Settings")
         st.metric("Question Quota", f"{MAX_QUESTIONS} per hour")
+
         if 'question_count' in st.session_state:
             st.progress(st.session_state.question_count / MAX_QUESTIONS)
             st.caption(f"Used: {st.session_state.question_count}/{MAX_QUESTIONS}")
 
         st.subheader("Upload Documents")
-        pdf_docs = st.file_uploader("Upload PDFs", type=["pdf"], accept_multiple_files=True)
-        use_agent = st.checkbox("🤖 Use Smart Agent (Experimental)", value=False)
+        pdf_docs = st.file_uploader(
+            "Upload PDFs",
+            type=["pdf"],
+            accept_multiple_files=True,
+            help="Upload one or more PDF files to analyze"
+        )
+
         process_btn = st.button("Process Documents", type="primary")
 
         if st.button("🗑️ Reset Chat", type="secondary"):
-            for key in ["conversation", "chatHistory", "question_count", "quota_exceeded_time", "last_user_question", "last_ai_answer", "agent"]:
+            for key in ["conversation", "chatHistory", "question_count", "quota_exceeded_time", "last_user_question", "last_ai_answer"]:
                 st.session_state.pop(key, None)
             st.success("Conversation reset successfully!")
             st.rerun()
@@ -102,30 +125,20 @@ def main():
                 st.write("Creating knowledge base...")
                 vector_store = get_vector_store(text_chunks)
 
-                if use_agent:
-                    st.write("Enabling smart agent...")
-                    st.session_state.agent = get_agent_with_tools(vector_store, raw_text)
-                else:
-                    st.write("Initializing AI engine...")
-                    st.session_state.conversation = get_conversational_chain(vector_store)
+                st.write("Initializing AI engine...")
+                st.session_state.conversation = get_conversational_chain(vector_store)
 
                 status.update(label="Processing complete!", state="complete")
                 st.success("Ready for questions!")
+
         else:
             st.warning("Please upload PDF files first")
 
-    if "conversation" not in st.session_state and "agent" not in st.session_state:
+    if "conversation" not in st.session_state or st.session_state.conversation is None:
         st.info("👆 Upload and process PDF files to begin.")
     else:
         if prompt := st.chat_input("Ask about your documents..."):
-            if use_agent and 'agent' in st.session_state:
-                with st.spinner("Agent is thinking..."):
-                    answer = st.session_state.agent.run(prompt)
-                    st.session_state.last_user_question = prompt
-                    st.session_state.last_ai_answer = answer
-                    st.markdown(f"**🤖 Agent Answer:** {answer}")
-            else:
-                user_input(prompt)
+            user_input(prompt)
 
         if st.session_state.last_user_question and st.session_state.last_ai_answer:
             st.markdown("### Last Q&A")

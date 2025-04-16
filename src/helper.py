@@ -1,4 +1,3 @@
-
 import os
 from PyPDF2 import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -8,12 +7,11 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
 from dotenv import load_dotenv
-from langchain.agents import initialize_agent, Tool
-from langchain.agents.agent_types import AgentType
 
 load_dotenv()
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")  
 os.environ['GOOGLE_API_KEY'] = GOOGLE_API_KEY
+
 
 def get_pdf_text(pdf_docs):    
     text = ""
@@ -77,44 +75,3 @@ def get_conversational_chain(vector_store):
         verbose=False
     )
     return conversation_chain
-
-def summarize_content(text):
-    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash-latest")
-    prompt = f"Summarize the following document:\n{text[:4000]}"
-    response = llm.invoke(prompt)
-    return response.content
-
-def extract_keywords(text):
-    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash-latest")
-    prompt = f"Extract the top 10 keywords from the following text:\n{text[:4000]}"
-    response = llm.invoke(prompt)
-    return response.content
-
-def get_agent_with_tools(vector_store, full_text):
-    tools = [
-        Tool.from_function(
-            name="summarize_document",
-            func=lambda q: summarize_content(full_text),
-            description="Use this tool to generate a summary of the document"
-        ),
-        Tool.from_function(
-            name="extract_keywords",
-            func=lambda q: extract_keywords(full_text),
-            description="Use this tool to extract important keywords from the document"
-        ),
-        Tool.from_function(
-            name="ask_question_from_vectorstore",
-            func=lambda q: get_conversational_chain(vector_store).invoke({'question': q})['answer'],
-            description="Use this tool to answer questions from document context"
-        )
-    ]
-
-    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash-latest", temperature=0.2)
-    agent = initialize_agent(
-        tools,
-        llm,
-        agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-        verbose=True,
-        handle_parsing_errors=True
-    )
-    return agent
